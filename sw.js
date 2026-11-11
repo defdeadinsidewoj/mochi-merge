@@ -1,5 +1,5 @@
-const CACHE = 'mochi-merge-v1';
-const ASSETS = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png'];
+const CACHE = 'mochi-merge-v2';
+const ASSETS = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'press-start-2p-latin-400-normal.woff2', 'vt323-latin-400-normal.woff2', 'fredoka-latin-500-normal.woff2', 'fredoka-latin-700-normal.woff2'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
