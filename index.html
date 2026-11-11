@@ -809,6 +809,52 @@
     100% { transform: translate(var(--dx, 0), 115vh) rotate(var(--rot, 720deg)); opacity: 0.85; }
   }
 
+
+  /* ── Buddy tutorial ── */
+  .tut { display: flex; flex-direction: column; align-items: center; margin-bottom: 14px; }
+  .tut-bubble {
+    position: relative;
+    width: 100%;
+    background: var(--pink);
+    border: 3px solid var(--berry);
+    border-radius: 16px;
+    box-shadow: 3px 3px 0 var(--berry);
+    padding: 12px 14px;
+    font-family: 'VT323', monospace;
+    font-size: 21px;
+    line-height: 1.25;
+    color: var(--berry);
+    text-align: center;
+  }
+  .tut-bubble b { color: #c2337a; font-weight: 400; }
+  .tut-bubble::after {
+    content: '';
+    position: absolute;
+    left: 50%; bottom: -13px;
+    width: 18px; height: 18px;
+    background: var(--pink);
+    border-right: 3px solid var(--berry);
+    border-bottom: 3px solid var(--berry);
+    transform: translateX(-50%) rotate(45deg);
+  }
+  .tut-demo {
+    margin-top: 8px;
+    padding: 6px 8px;
+    background: #fff;
+    border: 2px dashed var(--berry);
+    border-radius: 10px;
+    font-size: 26px;
+    letter-spacing: 1px;
+  }
+  .tut-arrows { font-family: 'Press Start 2P', monospace; font-size: 16px; color: var(--hotpink); }
+  .tut-buddy { width: 128px; margin-top: 16px; animation: tutBob 1.6s ease-in-out infinite; }
+  .tut-buddy svg { width: 100%; height: auto; display: block; }
+  @keyframes tutBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  .tut-dots { display: flex; gap: 6px; margin-top: 8px; }
+  .tut-dots i { width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--berry); background: #fff; }
+  .tut-dots i.on { background: var(--hotpink); }
+  .card .big-emoji:empty { display: none; }
+
   /* ─────────────────────────────────────────
      RESPONSIVE
      ───────────────────────────────────────── */
@@ -1758,19 +1804,41 @@ function openModal({ emoji, title, bodyHTML, buttons }) {
 }
 function closeModal() { overlay.classList.remove('on'); }
 
-function showIntro() {
+/* ── How to play: your buddy walks you through it ── */
+const TUTORIAL_STEPS = [
+  { title: 'WELCOME!',  demo: '',
+    say: (n) => `hi, i'm <b>${n}</b>! welcome to my café ♡ let me show you how to bake.` },
+  { title: 'SWIPE',     demo: '<span class="tut-arrows">←&nbsp;↑&nbsp;↓&nbsp;→</span>',
+    say: () => `<b>swipe</b> anywhere on the board. every sweet slides that way until it bumps into something.` },
+  { title: 'MERGE',     demo: '🥚 + 🥚 = 🍡',
+    say: () => `when <b>two of the same</b> sweet bump together, they merge into a yummier one!` },
+  { title: 'HELPERS',   demo: '↶ &nbsp; ★',
+    say: () => `oops? tap <b>↶ UNDO</b> to take a move back. tap <b>★ MENU</b> to see every dessert.` },
+  { title: 'YOUR GOAL', demo: '🎂 + 🎂 = ⭐',
+    say: () => `keep merging all the way to the <b>star cake</b>. beat your best score and i'll throw confetti ♡` },
+];
+function showIntro(step = 0) {
+  const m = MASCOTS[mascot] || MASCOTS.f;
+  const s = TUTORIAL_STEPS[step];
+  const last = step === TUTORIAL_STEPS.length - 1;
+  const dots = TUTORIAL_STEPS.map((_, i) => `<i class="${i === step ? 'on' : ''}"></i>`).join('');
+  const buttons = [{
+    label: last ? "LET'S BAKE ♡" : 'NEXT ▶',
+    primary: true,
+    onClick: last ? undefined : () => showIntro(step + 1),
+  }];
+  if (!last) buttons.push({ label: step === 0 ? 'SKIP' : '◀ BACK', onClick: step === 0 ? undefined : () => showIntro(step - 1) });
   openModal({
-    emoji: '🍡',
-    title: 'WELCOME!',
+    emoji: '',
+    title: s.title,
     bodyHTML: `
-      <ul class="hint-list">
-        <li>swipe to slide all the sweets</li>
-        <li>match two to merge into the next dessert</li>
-        <li>reach the ⭐ star cake to win</li>
-        <li>arrow keys or WASD also work</li>
-      </ul>
+      <div class="tut">
+        <div class="tut-bubble">${s.say(m.name.toLowerCase())}${s.demo ? `<div class="tut-demo">${s.demo}</div>` : ''}</div>
+        <div class="tut-buddy">${m.svg}</div>
+        <div class="tut-dots">${dots}</div>
+      </div>
     `,
-    buttons: [{ label: "LET'S BAKE ♡", primary: true }],
+    buttons,
   });
 }
 function showWin() {
